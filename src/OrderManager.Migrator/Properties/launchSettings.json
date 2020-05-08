@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Ozon.Pay.Refunds.WireManager.Migrator": {
+      "commandName": "Project",
+      "commandLineArgs": "",
+      "environmentVariables": {
+        "VAULT_AUTH_URL": "o-dev",
+        "VAULT_GROUP": "pay",
+        "O3_RELEASE_NAME": "wire-manager-develop",
+        "VAULT_ADDR": "https://stgvault.s.o3.ru:8200",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
