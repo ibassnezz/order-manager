@@ -52,12 +52,12 @@ namespace OrderManager.Domain.Storage
 
             var persistIncrement = persistentVersion;
             var dataQueue = new Queue<DataWithVersion>();
+            var publications = domainEvents.ToArray();
 
             while (domainEvents.TryDequeue(out var domainEvent))
             {
                 persistIncrement++;
                 dataQueue.Enqueue(new DataWithVersion(persistIncrement, JObject.FromObject(domainEvent), _messageDeserializer.GetEventName(domainEvent)));
-                await _mediator.Publish(new EventNotification<string, IDomainEvent>(orderNumber, domainEvent), cancellationToken);
             }
 
             var rawSnapshot = snapshot is null
@@ -65,6 +65,11 @@ namespace OrderManager.Domain.Storage
                 : new RawSnapshotData(snapshot.LastVersion, JObject.FromObject(snapshot.Payload));
 
             await _eventRepository.AppendRecordsAsync(orderNumber, new RawDataContainer(rawSnapshot, dataQueue), cancellationToken);
+
+            var tasks = publications.Select(p =>
+                _mediator.Publish(new EventNotification<string, IDomainEvent>(orderNumber, p), cancellationToken));
+
+            await Task.WhenAll(tasks);
         }
 
     }
